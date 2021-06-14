@@ -21,32 +21,40 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public MessageEntity getMessage(String messageId) {
+    public MessageInfo getMessage(String messageId) {
         return null;
     }
 
     @Override
-    public List<MessageEntity> getAllMessages(String sender, String receiver) {
+    public List<MessageInfo> getAllMessages(String sender, String receiver) {
         return null;
     }
 
     @Override
-    public List<MessageEntity> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
+    public List<MessageInfo> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
         return null;
     }
 
     @Override
-    public MessageEntity saveMessage(MessageEntity message) {
+    public MessageInfo saveMessage(MessageInfo message) {
         return null;
     }
 
     @Override
-    public Collection<MessageEntity> saveAllMessages(Collection<MessageEntity> messages) {
+    public Collection<MessageInfo> saveAllMessages(Collection<MessageInfo> messages) {
         return null;
     }
 
     @Override
     public void deleteMessage(String messageId) {
 
+    }
+
+    private MessageInfo convertMessageEntityToMessageInfo(MessageEntity entity) {
+        return null;
+    }
+
+    private MessageEntity convertMessageInfoToMessageEntity(MessageInfo info) {
+        return null;
     }
 }

@@ -1,6 +1,5 @@
 package ru.reboot.service;
 
-import ru.reboot.dao.entity.MessageEntity;
 import ru.reboot.dto.MessageInfo;
 
 import java.time.LocalDateTime;
@@ -15,21 +14,21 @@ public interface MessageService {
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if message id is null or empty
      * @throws ru.reboot.error.BusinessLogicException with code MESSAGE_NOT_FOUND if message not found
      */
-    MessageEntity getMessage(String messageId);
+    MessageInfo getMessage(String messageId);
 
     /**
      * Get all messages between sender and receiver
      *
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if sender, receiver is null or empty
      */
-    List<MessageEntity> getAllMessages(String sender, String receiver);
+    List<MessageInfo> getAllMessages(String sender, String receiver);
 
     /**
      * Get all messages between sender and receiver since timestamp
      *
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if sender, receiver is null or empty
      */
-    List<MessageEntity> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp);
+    List<MessageInfo> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp);
 
     /**
      * Save message
@@ -37,7 +36,7 @@ public interface MessageService {
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if message is null
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if message has bad data
      */
-    MessageEntity saveMessage(MessageEntity message);
+    MessageInfo saveMessage(MessageInfo message);
 
     /**
      * Save all messages
@@ -45,7 +44,7 @@ public interface MessageService {
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if messages is null
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if messages has bad data
      */
-    Collection<MessageEntity> saveAllMessages(Collection<MessageEntity> messages);
+    Collection<MessageInfo> saveAllMessages(Collection<MessageInfo> messages);
 
     /**
      * Delete message by id
