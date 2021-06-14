@@ -1,9 +1,5 @@
 package ru.reboot.dto;
 
-import ru.reboot.dao.entity.MessageEntity;
-import ru.reboot.dao.entity.MessageEntity.Builder;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class MessageInfo {
