@@ -1,0 +1,7 @@
+server:
+  port: 8086
+
+jdbc:
+  url: jdbc:postgresql://84.201.167.2:5432/simple_db
+  username: db_user
+  password: qwerty
