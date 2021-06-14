@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="1" author="demidov">
+        <createTable tableName="message">
+            <column name="id" type="VARCHAR(50)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="users_pkey"/>
+            </column>
+            <column name="sender" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipient" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="VARCHAR(50)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="message_timestamp" type="TIMESTAMP WITHOUT TIME ZONE"/>
+            <column name="last_access_time" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
