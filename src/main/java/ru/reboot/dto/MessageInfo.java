@@ -23,11 +23,9 @@ public class MessageInfo {
         return sender;
     }
 
-
     public void setSender(String sender) {
         this.sender = sender;
     }
-
 
     public String getRecipient() {
         return recipient;
@@ -74,7 +72,6 @@ public class MessageInfo {
     }
 
     public static class Builder {
-
         private MessageInfo obj;
 
         public Builder() {
