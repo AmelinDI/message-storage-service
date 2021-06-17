@@ -1,19 +1,25 @@
 package ru.reboot.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.reboot.dao.MessageRepository;
 import ru.reboot.dao.entity.MessageEntity;
 import ru.reboot.dto.MessageInfo;
+import ru.reboot.error.BusinessLogicException;
+import ru.reboot.error.ErrorCode;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class MessageServiceImpl implements MessageService {
 
     private MessageRepository messageRepository;
+    private static final Logger logger = LogManager.getLogger(MessageServiceImpl.class);
 
     @Autowired
     public void setMessageRepository(MessageRepository messageRepository) {
@@ -40,21 +46,58 @@ public class MessageServiceImpl implements MessageService {
         return null;
     }
 
+    /**
+     * @param messages
+     * @return
+     */
     @Override
     public Collection<MessageInfo> saveAllMessages(Collection<MessageInfo> messages) {
-        return null;
+        logger.info("Method .saveAllMessages messages={}.", messages);
+        if (messages == null || messages.isEmpty()) {
+            throw new BusinessLogicException("Input collection of messages does empty or null", ErrorCode.ILLEGAL_ARGUMENT);
+        } else {
+            messageRepository.saveAllMessages(messages
+                    .stream()
+                    .map(this::convertMessageInfoToMessageEntity)
+                    .collect(Collectors.toList()));
+            logger.info("Method .saveAllMessages completed messages={} result={}", messages, messages);
+            return messages;
+        }
     }
 
+    /**
+     * @param messageId
+     */
     @Override
     public void deleteMessage(String messageId) {
+        logger.info("Method .deleteMessage messageId={}.", messageId);
+        if (messageId == null || messageId.isEmpty()) {
+            throw new BusinessLogicException("messageId is empty or null", ErrorCode.ILLEGAL_ARGUMENT);
+        }
+        messageRepository.deleteMessage(messageId);
+        logger.info("Method .deleteMessage completed");
 
     }
 
     private MessageInfo convertMessageEntityToMessageInfo(MessageEntity entity) {
-        return null;
+        MessageInfo messageInfo = new MessageInfo();
+        messageInfo.setId(entity.getId());
+        messageInfo.setSender(entity.getSender());
+        messageInfo.setRecipient(entity.getRecipient());
+        messageInfo.setContent(entity.getContent());
+        messageInfo.setMessageTimestamp(entity.getMessageTimestamp());
+        messageInfo.setLastAccessTime(entity.getLastAccessTime());
+        return messageInfo;
     }
 
     private MessageEntity convertMessageInfoToMessageEntity(MessageInfo info) {
-        return null;
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setId(info.getId());
+        messageEntity.setSender(info.getSender());
+        messageEntity.setRecipient(info.getRecipient());
+        messageEntity.setContent(info.getContent());
+        messageEntity.setMessageTimestamp(info.getMessageTimestamp());
+        messageEntity.setLastAccessTime(info.getLastAccessTime());
+        return messageEntity;
     }
 }
