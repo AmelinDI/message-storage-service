@@ -35,11 +35,17 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public List<MessageEntity> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
+        /////////////////////////////////////
+        /////////////////////////////////////
+        /////////////////////////////////////
         return null;
     }
 
     @Override
     public MessageEntity saveMessage(MessageEntity message) {
+        /////////////////////////////////////
+        /////////////////////////////////////
+        /////////////////////////////////////
         return null;
     }
 

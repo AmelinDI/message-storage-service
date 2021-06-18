@@ -3,9 +3,7 @@ package ru.reboot.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.reboot.dao.MessageRepositoryImpl;
 import ru.reboot.dto.MessageInfo;
 import ru.reboot.service.MessageService;
@@ -48,12 +46,16 @@ public class MessageControllerImpl implements MessageController {
     }
 
     @Override
-    public List<MessageInfo> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
+    @GetMapping("message/allSinceTime")
+    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,@RequestParam("receiver") String receiver,@RequestParam("timestamp") LocalDateTime sinceTimestamp) {
+        messageService.getAllMessages(sender, receiver, sinceTimestamp);
         return null;
     }
 
     @Override
-    public MessageInfo saveMessage(MessageInfo message) {
+    @PutMapping("/message")
+    public MessageInfo saveMessage(@RequestBody MessageInfo message) {
+        messageService.saveMessage(message);
         return null;
     }
 

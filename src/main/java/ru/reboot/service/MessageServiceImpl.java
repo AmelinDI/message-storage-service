@@ -6,9 +6,12 @@ import ru.reboot.dao.MessageRepository;
 import ru.reboot.dao.entity.MessageEntity;
 import ru.reboot.dto.MessageInfo;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class MessageServiceImpl implements MessageService {
@@ -32,12 +35,16 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<MessageInfo> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
-        return null;
+        List<MessageInfo> result = new ArrayList<>();
+        List<MessageEntity> entityList = messageRepository.getAllMessages(sender, receiver, sinceTimestamp);
+
+        return entityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
     }
 
     @Override
     public MessageInfo saveMessage(MessageInfo message) {
-        return null;
+        MessageEntity messageEntity = convertMessageInfoToMessageEntity(message);
+        return convertMessageEntityToMessageInfo(messageRepository.saveMessage(messageEntity));
     }
 
     @Override
@@ -51,10 +58,24 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private MessageInfo convertMessageEntityToMessageInfo(MessageEntity entity) {
-        return null;
+        return new MessageInfo.Builder()
+                .setId(entity.getId())
+                .setSender(entity.getSender())
+                .setRecipient(entity.getRecipient())
+                .setContent(entity.getContent())
+                .setMessageTimestamp(entity.getMessageTimestamp())
+                .setLastAccessTime((entity.getLastAccessTime()))
+                .build();
     }
 
     private MessageEntity convertMessageInfoToMessageEntity(MessageInfo info) {
-        return null;
+        return new MessageEntity.Builder()
+                .setId(info.getId())
+                .setSender(info.getSender())
+                .setRecipient(info.getRecipient())
+                .setContent(info.getContent())
+                .setMessageTimestamp(info.getMessageTimestamp())
+                .setLastAccessTime(info.getLastAccessTime())
+                .build();
     }
 }
