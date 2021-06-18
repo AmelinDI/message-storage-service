@@ -2,23 +2,20 @@ package ru.reboot.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.reboot.dao.entity.MessageEntity;
-import ru.reboot.error.BusinessLogicException;
-import ru.reboot.error.ErrorCode;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Message repository.
  */
 @Component
-@Transactional
 public class MessageRepositoryImpl implements MessageRepository {
 
     private SessionFactory sessionFactory;
@@ -50,20 +47,26 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Collection<MessageEntity> saveAllMessages(Collection<MessageEntity> messages) {
-        messages.forEach(this::saveMessage);
-        return messages;
+        return messages.stream().map(message -> {
+            Transaction transaction = null;
+            MessageEntity messageEntity = null;
+            try (Session session = sessionFactory.openSession()) {
+                transaction = session.beginTransaction();
+                messageEntity = saveMessage(message);
+                transaction.commit();
+            } catch (RuntimeException e) {
+                if (transaction != null)
+                    transaction.rollback();
+            }
+            return messageEntity;
+        }).collect(Collectors.toList());
     }
 
     @Override
     public void deleteMessage(String messageId) {
-        MessageEntity messageEntity = Optional
-                .ofNullable(getMessage(messageId))
-                .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
         try (Session session = sessionFactory.openSession()) {
-            messageEntity.setMessageTimestamp(LocalDateTime.now());
-            session.beginTransaction();
+            MessageEntity messageEntity = new MessageEntity();
             session.delete(messageEntity);
-            session.getTransaction().commit();
         }
     }
 }

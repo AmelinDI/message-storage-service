@@ -13,6 +13,7 @@ import ru.reboot.error.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -72,11 +73,13 @@ public class MessageServiceImpl implements MessageService {
     public void deleteMessage(String messageId) {
         logger.info("Method .deleteMessage messageId={}.", messageId);
         if (messageId == null || messageId.isEmpty()) {
+            Optional
+                    .of(convertMessageInfoToMessageEntity(getMessage(messageId)))
+                    .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
             throw new BusinessLogicException("messageId is empty or null", ErrorCode.ILLEGAL_ARGUMENT);
         }
         messageRepository.deleteMessage(messageId);
         logger.info("Method .deleteMessage completed");
-
     }
 
     private MessageInfo convertMessageEntityToMessageInfo(MessageEntity entity) {
