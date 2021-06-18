@@ -87,6 +87,8 @@ public class MessageServiceImpl implements MessageService {
         messageInfo.setContent(entity.getContent());
         messageInfo.setMessageTimestamp(entity.getMessageTimestamp());
         messageInfo.setLastAccessTime(entity.getLastAccessTime());
+        messageInfo.setWasRead(entity.isWasRead());
+        messageInfo.setReadTime(entity.getReadTime());
         return messageInfo;
     }
 
@@ -98,6 +100,8 @@ public class MessageServiceImpl implements MessageService {
         messageEntity.setContent(info.getContent());
         messageEntity.setMessageTimestamp(info.getMessageTimestamp());
         messageEntity.setLastAccessTime(info.getLastAccessTime());
+        messageEntity.setWasRead(info.isWasRead());
+        messageEntity.setReadTime(info.getReadTime());
         return messageEntity;
     }
 }
