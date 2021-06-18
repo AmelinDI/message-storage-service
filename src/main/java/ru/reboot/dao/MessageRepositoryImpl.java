@@ -30,7 +30,6 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public MessageEntity getMessage(String messageId) {
-
         return null;
     }
 
@@ -61,6 +60,7 @@ public class MessageRepositoryImpl implements MessageRepository {
                 .ofNullable(getMessage(messageId))
                 .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
         try (Session session = sessionFactory.openSession()) {
+            messageEntity.setMessageTimestamp(LocalDateTime.now());
             session.beginTransaction();
             session.delete(messageEntity);
             session.getTransaction().commit();

@@ -20,7 +20,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="message_timestamp" type="TIMESTAMP WITHOUT TIME ZONE"/>
-            <column name="last_access_time" type="TIMESTAMP WITHOUT TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="last_access_time" type="TIMESTAMP WITHOUT TIME ZONE"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>
