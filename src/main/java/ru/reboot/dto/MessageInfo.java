@@ -10,6 +10,9 @@ public class MessageInfo {
     private String content;
     private LocalDateTime messageTimestamp;
     private LocalDateTime lastAccessTime;
+    private boolean wasRead;
+    private LocalDateTime readTime;
+
 
     public String getId() {
         return id;
@@ -59,6 +62,22 @@ public class MessageInfo {
         this.lastAccessTime = lastAccessTime;
     }
 
+    public boolean wasRead() {
+        return wasRead;
+    }
+
+    public void setWasRead(boolean wasRead) {
+        this.wasRead = wasRead;
+    }
+
+    public LocalDateTime getReadTime() {
+        return readTime;
+    }
+
+    public void setReadTime(LocalDateTime readTime) {
+        this.readTime = readTime;
+    }
+
     @Override
     public String toString() {
         return "MessageInfo{" +
@@ -68,6 +87,8 @@ public class MessageInfo {
                 ", content='" + content + '\'' +
                 ", messageTimestamp=" + messageTimestamp +
                 ", lastAccessTime=" + lastAccessTime +
+                ", wasRead=" + wasRead +
+                ", readTime=" + readTime +
                 '}';
     }
 
@@ -105,6 +126,16 @@ public class MessageInfo {
 
         public Builder setLastAccessTime(LocalDateTime lastAccessTime) {
             obj.lastAccessTime = lastAccessTime;
+            return this;
+        }
+
+        public Builder setWasRead(boolean wasRead) {
+            obj.wasRead = wasRead;
+            return this;
+        }
+
+        public Builder setReadTime(LocalDateTime readTime) {
+            obj.readTime = readTime;
             return this;
         }
 

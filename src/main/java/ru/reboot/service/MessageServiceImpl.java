@@ -9,10 +9,11 @@ import ru.reboot.error.BusinessLogicException;
 import ru.reboot.error.ErrorCode;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,35 +28,52 @@ public class MessageServiceImpl implements MessageService {
         this.messageRepository = messageRepository;
     }
 
+    /**
+     * Receive message by its messageId
+     * @param messageId - Id of message
+     * @return
+     */
     @Override
     public MessageInfo getMessage(String messageId) {
-        if(Objects.isNull(messageId) || messageId.length()==0){
-            throw new BusinessLogicException("MessageId of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
-        }
-        MessageEntity entity = messageRepository.getMessage(messageId);
-        if(Objects.isNull(entity)){
-            throw new BusinessLogicException("No message found",ErrorCode.MESSAGE_NOT_FOUND);
-        }
+        try{
+            logger.info("Method .getMessage messageId={}.", messageId);
+            if(Objects.isNull(messageId) || messageId.length()==0){
+                throw new BusinessLogicException("MessageId of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
+            }
+            MessageEntity entity = messageRepository.getMessage(messageId);
+            if(Objects.isNull(entity)){
+                throw new BusinessLogicException("No message found",ErrorCode.MESSAGE_NOT_FOUND);
+            }
 
-        MessageInfo messageInfo = convertMessageEntityToMessageInfo(entity);
-
-        return messageInfo;
+            MessageInfo messageInfo = convertMessageEntityToMessageInfo(entity);
+            logger.info("Method .getMessage completed  messageId={},result={}", messageId,messageInfo);
+            return messageInfo;
+        }
+        catch (Exception e){
+            logger.error("Error to .getMessage error = {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
     public List<MessageInfo> getAllMessages(String sender, String receiver) {
-        if(Objects.isNull(sender) || Objects.isNull(receiver) || sender.length()==0 || receiver.length()==0){
-            throw new BusinessLogicException("Sender of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
+        try{
+            logger.info("Method .getAllMessages(String sender, String receiver) sender={},receiver={}", sender,receiver);
+            if(Objects.isNull(sender) || Objects.isNull(receiver) || sender.length()==0 || receiver.length()==0){
+                throw new BusinessLogicException("Sender of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
+            }
+            List<MessageEntity> messageEntityList = messageRepository.getAllMessages(sender,receiver);
+            if(Objects.isNull(messageEntityList)){
+                throw new BusinessLogicException("No messages found",ErrorCode.MESSAGE_NOT_FOUND);
+            }
+            List<MessageInfo> messageInfosList = messageEntityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
+            logger.info("Method .getAllMessages(String sender, String receiver) completed sender={},receiver={},result={}", sender,receiver,messageInfosList);
+            return messageInfosList;
         }
-        List<MessageEntity> messageEntityList = messageRepository.getAllMessages(sender,receiver);
-        if(Objects.isNull(messageEntityList)){
-            throw new BusinessLogicException("No messages found",ErrorCode.MESSAGE_NOT_FOUND);
+        catch (Exception e){
+            logger.error("Error to .getAllMessages(String sender, String receiver) error = {}", e.getMessage(), e);
+            throw e;
         }
-        ArrayList<MessageInfo> messageInfosList = new ArrayList<>();
-        for(MessageEntity entity: messageEntityList){
-            messageInfosList.add(convertMessageEntityToMessageInfo(entity));
-        }
-        return messageInfosList;
     }
 
     @Override
