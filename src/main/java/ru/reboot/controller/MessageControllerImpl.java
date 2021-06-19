@@ -4,6 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.reboot.dao.MessageRepositoryImpl;
 import ru.reboot.dto.MessageInfo;
 import ru.reboot.service.MessageService;
@@ -20,7 +27,7 @@ import java.util.List;
 @RequestMapping(path = "storage")
 public class MessageControllerImpl implements MessageController {
 
-    private static final Logger logger = LogManager.getLogger(MessageRepositoryImpl.class);
+    private static final Logger logger = LogManager.getLogger(MessageControllerImpl.class);
 
     private MessageService messageService;
 

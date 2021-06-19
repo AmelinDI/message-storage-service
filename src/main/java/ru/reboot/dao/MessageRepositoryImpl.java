@@ -1,11 +1,18 @@
 package ru.reboot.dao;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.reboot.dao.entity.MessageEntity;
+import ru.reboot.error.BusinessLogicException;
+import ru.reboot.error.ErrorCode;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +31,6 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public MessageEntity getMessage(String messageId) {
-
         return null;
     }
 
@@ -35,18 +41,47 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public List<MessageEntity> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
-        /////////////////////////////////////
-        /////////////////////////////////////
-        /////////////////////////////////////
-        return null;
+        List<MessageEntity> result;
+        String queryString = "SELECT m FROM MessageEntity m WHERE " +
+                "m.sender = :sender" +
+                "m.recipient = :receiver" +
+                "m.message_timestamp >= :sinceTimestamp";
+
+        try (Session session = sessionFactory.openSession()) {
+            result = session.createQuery(queryString, MessageEntity.class)
+                    .setParameter(":sender", sender)
+                    .setParameter(":receiver", receiver)
+                    .setParameter(":sinceTimestamp", sinceTimestamp)
+                    .getResultList();
+        }
+
+        if (result == null) {
+            throw new BusinessLogicException("Messages with" +
+                    " sender = " + sender +
+                    " receiver = " + receiver +
+                    " sinceTimestamp = " + sinceTimestamp +
+                    "was not found", ErrorCode.MESSAGE_NOT_FOUND);
+        }
+
+        return result;
     }
 
     @Override
     public MessageEntity saveMessage(MessageEntity message) {
-        /////////////////////////////////////
-        /////////////////////////////////////
-        /////////////////////////////////////
-        return null;
+        MessageEntity result;
+
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+                session.save(message);
+            transaction.commit();
+        }
+
+        result = getMessage(message.getId());
+        if (result == null) {
+            throw new BusinessLogicException("Error saving " + message, ErrorCode.DATABASE_ERROR);
+        }
+
+        return result;
     }
 
     @Override
