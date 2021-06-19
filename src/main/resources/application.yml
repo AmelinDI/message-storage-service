@@ -5,3 +5,6 @@ jdbc:
   url: jdbc:postgresql://84.201.167.2:5432/simple_db
   username: db_user
   password: qwerty
+
+liquibase:
+    change-log: classpath:liquibase/db.changelog.xml
