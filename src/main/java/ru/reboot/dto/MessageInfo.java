@@ -1,8 +1,5 @@
 package ru.reboot.dto;
 
-import ru.reboot.dao.entity.MessageEntity;
-
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 public class MessageInfo {
@@ -65,7 +62,7 @@ public class MessageInfo {
         this.lastAccessTime = lastAccessTime;
     }
 
-    public boolean isWasRead() {
+    public boolean wasRead() {
         return wasRead;
     }
 

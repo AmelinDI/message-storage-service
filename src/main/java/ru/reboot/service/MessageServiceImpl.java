@@ -54,15 +54,19 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Collection<MessageInfo> saveAllMessages(Collection<MessageInfo> messages) {
         logger.info("Method .saveAllMessages messages={}.", messages);
+        List<MessageInfo> messageInfos;
         if (messages == null || messages.isEmpty()) {
             throw new BusinessLogicException("Input collection of messages does empty or null", ErrorCode.ILLEGAL_ARGUMENT);
         } else {
-            messageRepository.saveAllMessages(messages
+            messageInfos = messageRepository.saveAllMessages(messages
                     .stream()
                     .map(this::convertMessageInfoToMessageEntity)
-                    .collect(Collectors.toList()));
+                    .collect(Collectors.toList()))
+                    .stream()
+                    .map(this::convertMessageEntityToMessageInfo)
+                    .collect(Collectors.toList());
             logger.info("Method .saveAllMessages completed messages={} result={}", messages, messages);
-            return messages;
+            return messageInfos;
         }
     }
 
@@ -73,13 +77,14 @@ public class MessageServiceImpl implements MessageService {
     public void deleteMessage(String messageId) {
         logger.info("Method .deleteMessage messageId={}.", messageId);
         if (messageId == null || messageId.isEmpty()) {
-            Optional
-                    .of(convertMessageInfoToMessageEntity(getMessage(messageId)))
-                    .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
             throw new BusinessLogicException("messageId is empty or null", ErrorCode.ILLEGAL_ARGUMENT);
         }
+        else {
+        Optional
+                .of(convertMessageInfoToMessageEntity(getMessage(messageId)))
+                .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
         messageRepository.deleteMessage(messageId);
-        logger.info("Method .deleteMessage completed");
+        logger.info("Method .deleteMessage completed");}
     }
 
     private MessageInfo convertMessageEntityToMessageInfo(MessageEntity entity) {
@@ -90,7 +95,7 @@ public class MessageServiceImpl implements MessageService {
         messageInfo.setContent(entity.getContent());
         messageInfo.setMessageTimestamp(entity.getMessageTimestamp());
         messageInfo.setLastAccessTime(entity.getLastAccessTime());
-        messageInfo.setWasRead(entity.isWasRead());
+        messageInfo.setWasRead(entity.wasRead());
         messageInfo.setReadTime(entity.getReadTime());
         return messageInfo;
     }
@@ -102,8 +107,8 @@ public class MessageServiceImpl implements MessageService {
         messageEntity.setRecipient(info.getRecipient());
         messageEntity.setContent(info.getContent());
         messageEntity.setMessageTimestamp(info.getMessageTimestamp());
-        messageEntity.setLastAccessTime(info.getLastAccessTime());
-        messageEntity.setWasRead(info.isWasRead());
+        messageEntity.setLastAccessTime(LocalDateTime.now());
+        messageEntity.setWasRead(info.wasRead());
         messageEntity.setReadTime(info.getReadTime());
         return messageEntity;
     }
