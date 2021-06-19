@@ -1,11 +1,14 @@
 package ru.reboot.dao;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.reboot.dao.entity.MessageEntity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +27,6 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public MessageEntity getMessage(String messageId) {
-
         return null;
     }
 
@@ -45,11 +47,27 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Collection<MessageEntity> saveAllMessages(Collection<MessageEntity> messages) {
-        return null;
+        List<MessageEntity> messageEntities = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            for (MessageEntity message : messages) {
+                messageEntities.add(saveMessage(message));
+                transaction.commit();
+            }
+        } catch (RuntimeException e) {
+            if (transaction != null)
+                transaction.rollback();
+        }
+        return messageEntities;
     }
 
     @Override
     public void deleteMessage(String messageId) {
-
+        try (Session session = sessionFactory.openSession()) {
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setId(messageId);
+            session.delete(messageEntity);
+        }
     }
 }
