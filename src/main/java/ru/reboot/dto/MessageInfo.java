@@ -1,7 +1,5 @@
 package ru.reboot.dto;
 
-import ru.reboot.dao.entity.MessageEntity;
-
 import java.time.LocalDateTime;
 
 public class MessageInfo {
@@ -14,6 +12,7 @@ public class MessageInfo {
     private LocalDateTime lastAccessTime;
     private boolean wasRead;
     private LocalDateTime readTime;
+
 
     public String getId() {
         return id;
@@ -74,6 +73,7 @@ public class MessageInfo {
     public LocalDateTime getReadTime() {
         return readTime;
     }
+
     public void setReadTime(LocalDateTime readTime) {
         this.readTime = readTime;
     }
@@ -88,7 +88,8 @@ public class MessageInfo {
                 ", messageTimestamp=" + messageTimestamp +
                 ", lastAccessTime=" + lastAccessTime +
                 ", wasRead=" + wasRead +
-                ", readTime=" + readTime+ '}';
+                ", readTime=" + readTime +
+                '}';
     }
 
     public static class Builder {
@@ -137,7 +138,7 @@ public class MessageInfo {
             obj.readTime = readTime;
             return this;
         }
-        
+
         public MessageInfo build() {
             return obj;
         }

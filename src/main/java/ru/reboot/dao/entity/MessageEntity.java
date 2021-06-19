@@ -35,7 +35,6 @@ public class MessageEntity {
     @Column(name = "read_time")
     private LocalDateTime readTime;
 
-
     public String getId() {
         return id;
     }
