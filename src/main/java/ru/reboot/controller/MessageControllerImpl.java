@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.reboot.dao.MessageRepositoryImpl;
 import ru.reboot.dto.MessageInfo;
@@ -37,13 +38,15 @@ public class MessageControllerImpl implements MessageController {
         return "MessageController " + new Date();
     }
 
+    @GetMapping("/message")
     @Override
-    public MessageInfo getMessage(String messageId) {
+    public MessageInfo getMessage(@RequestParam String messageId) {
         return null;
     }
 
+    @GetMapping("/message/all")
     @Override
-    public List<MessageInfo> getAllMessages(String sender, String receiver) {
+    public List<MessageInfo> getAllMessages(@RequestParam String sender,@RequestParam String receiver) {
         return null;
     }
 

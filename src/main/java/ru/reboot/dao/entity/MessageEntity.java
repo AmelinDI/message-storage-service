@@ -89,7 +89,7 @@ public class MessageEntity {
                 '}';
     }
 
-    public static class Builder {
+    public static class  Builder {
         private MessageEntity obj;
 
         public Builder() {
