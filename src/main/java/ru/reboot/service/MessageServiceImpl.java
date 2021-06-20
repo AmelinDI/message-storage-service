@@ -10,9 +10,7 @@ import ru.reboot.dto.MessageInfo;
 import ru.reboot.error.BusinessLogicException;
 import ru.reboot.error.ErrorCode;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
