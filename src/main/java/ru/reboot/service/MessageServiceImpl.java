@@ -30,26 +30,26 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * Receive message by its messageId
+     *
      * @param messageId - Id of message
      * @return - Returns instance of MessageInfo
      */
     @Override
     public MessageInfo getMessage(String messageId) {
-        try{
+        try {
             logger.info("Method .getMessage messageId={}.", messageId);
-            if(Objects.isNull(messageId) || messageId.length()==0){
+            if (Objects.isNull(messageId) || messageId.length() == 0) {
                 throw new BusinessLogicException("MessageId of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
             }
             MessageEntity entity = messageRepository.getMessage(messageId);
-            if(Objects.isNull(entity)){
-                throw new BusinessLogicException("No message found",ErrorCode.MESSAGE_NOT_FOUND);
+            if (Objects.isNull(entity)) {
+                throw new BusinessLogicException("No message found", ErrorCode.MESSAGE_NOT_FOUND);
             }
 
             MessageInfo messageInfo = convertMessageEntityToMessageInfo(entity);
-            logger.info("Method .getMessage completed  messageId={},result={}", messageId,messageInfo);
+            logger.info("Method .getMessage completed  messageId={},result={}", messageId, messageInfo);
             return messageInfo;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Error to .getMessage error = {}", e.getMessage(), e);
             throw e;
         }
@@ -57,26 +57,26 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * Receive all messages between sender and receiver
-     * @param sender - Sender of messages
+     *
+     * @param sender   - Sender of messages
      * @param receiver - Receiver of messages
      * @return - Returns Array of MessageInfo
      */
     @Override
     public List<MessageInfo> getAllMessages(String sender, String receiver) {
-        try{
-            logger.info("Method .getAllMessages(String sender, String receiver) sender={},receiver={}", sender,receiver);
-            if(Objects.isNull(sender) || Objects.isNull(receiver) || sender.length()==0 || receiver.length()==0){
+        try {
+            logger.info("Method .getAllMessages(String sender, String receiver) sender={},receiver={}", sender, receiver);
+            if (Objects.isNull(sender) || Objects.isNull(receiver) || sender.length() == 0 || receiver.length() == 0) {
                 throw new BusinessLogicException("Sender of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
             }
-            List<MessageEntity> messageEntityList = messageRepository.getAllMessages(sender,receiver);
-            if(Objects.isNull(messageEntityList)){
-                throw new BusinessLogicException("No messages found",ErrorCode.MESSAGE_NOT_FOUND);
+            List<MessageEntity> messageEntityList = messageRepository.getAllMessages(sender, receiver);
+            if (Objects.isNull(messageEntityList)) {
+                throw new BusinessLogicException("No messages found", ErrorCode.MESSAGE_NOT_FOUND);
             }
             List<MessageInfo> messageInfosList = messageEntityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
-            logger.info("Method .getAllMessages(String sender, String receiver) completed sender={},receiver={},result={}", sender,receiver,messageInfosList);
+            logger.info("Method .getAllMessages(String sender, String receiver) completed sender={},receiver={},result={}", sender, receiver, messageInfosList);
             return messageInfosList;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Error to .getAllMessages(String sender, String receiver) error = {}", e.getMessage(), e);
             throw e;
         }
@@ -85,8 +85,8 @@ public class MessageServiceImpl implements MessageService {
     /**
      * Gets all messages from "message" table
      *
-     * @param sender - sender
-     * @param receiver - receiver
+     * @param sender         - sender
+     * @param receiver       - receiver
      * @param sinceTimestamp - since time
      * @return List<MessageInfo> or throws exception
      */
@@ -95,7 +95,7 @@ public class MessageServiceImpl implements MessageService {
         List<MessageInfo> result;
         logger.info("Method .getAllMessages sender={} receiver={} sinceTimestamp={}", sender, receiver, sinceTimestamp);
 
-        try{
+        try {
             if (sender == null || receiver == null || sinceTimestamp == null
                     || sender.equals("") || receiver.equals("")) {
                 throw new BusinessLogicException("Parameters are null or empty", ErrorCode.ILLEGAL_ARGUMENT);
@@ -105,7 +105,7 @@ public class MessageServiceImpl implements MessageService {
 
             logger.info("Method .getAllMessages completed sender={} receiver={} sinceTimestamp={} result={}", sender, receiver, sinceTimestamp, result);
             return result;
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error("Error to .getAllMessages error = {}", e.getMessage(), e);
             throw e;
         }
@@ -125,7 +125,7 @@ public class MessageServiceImpl implements MessageService {
 
         try {
             if (message == null || message.getContent().equals("")) {
-                throw new BusinessLogicException("Message is null or empty",ErrorCode.ILLEGAL_ARGUMENT);
+                throw new BusinessLogicException("Message is null or empty", ErrorCode.ILLEGAL_ARGUMENT);
             }
             MessageEntity messageEntity = convertMessageInfoToMessageEntity(message);
             result = convertMessageEntityToMessageInfo(messageRepository.saveMessage(messageEntity));
@@ -169,13 +169,13 @@ public class MessageServiceImpl implements MessageService {
         logger.info("Method .deleteMessage messageId={}.", messageId);
         if (messageId == null || messageId.isEmpty()) {
             throw new BusinessLogicException("messageId is empty or null", ErrorCode.ILLEGAL_ARGUMENT);
+        } else {
+            Optional
+                    .of(convertMessageInfoToMessageEntity(getMessage(messageId)))
+                    .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
+            messageRepository.deleteMessage(messageId);
+            logger.info("Method .deleteMessage completed");
         }
-        else {
-        Optional
-                .of(convertMessageInfoToMessageEntity(getMessage(messageId)))
-                .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
-        messageRepository.deleteMessage(messageId);
-        logger.info("Method .deleteMessage completed");}
     }
 
     private MessageInfo convertMessageEntityToMessageInfo(MessageEntity entity) {
