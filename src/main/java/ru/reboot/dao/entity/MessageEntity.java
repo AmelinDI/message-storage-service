@@ -91,7 +91,6 @@ public class MessageEntity {
         this.wasRead = wasRead;
     }
 
-
     public LocalDateTime getReadTime() {
         return readTime;
     }
