@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.reboot.dao.MessageRepositoryImpl;
 import ru.reboot.dto.MessageInfo;
 import ru.reboot.service.MessageService;
 
@@ -48,9 +47,11 @@ public class MessageControllerImpl implements MessageController {
     }
 
     @Override
-    @GetMapping("message/allSinceTime")
-    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,@RequestParam("receiver") String receiver,@RequestParam("timestamp") LocalDateTime sinceTimestamp) {
-        return messageService.getAllMessages(sender, receiver, sinceTimestamp);
+    @GetMapping("/message/allSinceTime")
+    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,@RequestParam("receiver") String receiver,@RequestParam("timestamp") String stringTimestamp) {
+        LocalDateTime sinceTimestamp = LocalDateTime.parse(stringTimestamp);
+        List<MessageInfo> result = messageService.getAllMessages(sender, receiver, sinceTimestamp);
+        return result;
     }
 
     @Override

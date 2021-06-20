@@ -20,8 +20,9 @@ public interface MessageController {
 
     /**
      * Get all messages between sender and receiver since timestamp
+     * @return
      */
-    List<MessageInfo> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp);
+    List<MessageInfo> getAllMessages(String sender,String receiver,String sinceTimestamp);
 
     /**
      * Save message

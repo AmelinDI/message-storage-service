@@ -70,14 +70,19 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public List<MessageEntity> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
         List<MessageEntity> result;
-        String queryString = "SELECT m FROM MessageEntity m WHERE m.sender = :sender and m.recipient = :receiver and m.messageTimestamp >= :sinceTimestamp";
 
         try (Session session = sessionFactory.openSession()) {
-            result = session.createQuery(queryString, MessageEntity.class)
-                    .setParameter("sender", sender)
-                    .setParameter("receiver", receiver)
-                    .setParameter("sinceTimestamp", sinceTimestamp)
-                    .getResultList();
+            Transaction transaction = session.beginTransaction();
+            Query query = session.createQuery("from MessageEntity m where " +
+                    "m.sender=:sender and " +
+                    "m.recipient=:receiver and "  +
+                    "m.messageTimestamp >= :sinceTimestamp");
+            query.setParameter("sender", sender);
+            query.setParameter("receiver", receiver);
+            query.setParameter("sinceTimestamp", sinceTimestamp);
+
+            result = (List<MessageEntity>) query.getResultList();
+            transaction.commit();
         }
 
         if (result == null) {
