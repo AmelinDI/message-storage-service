@@ -31,7 +31,7 @@ public class MessageServiceImpl implements MessageService {
     /**
      * Receive message by its messageId
      * @param messageId - Id of message
-     * @return
+     * @return - Returns instance of MessageInfo
      */
     @Override
     public MessageInfo getMessage(String messageId) {
@@ -55,6 +55,12 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
+    /**
+     * Receive messages between sender and receiver for all time
+     * @param sender - Sender of messages
+     * @param receiver - Receiver of messages
+     * @return - Returns Array of MessageInfo
+     */
     @Override
     public List<MessageInfo> getAllMessages(String sender, String receiver) {
         try{
