@@ -38,13 +38,13 @@ public class MessageControllerImpl implements MessageController {
     @GetMapping("/message")
     @Override
     public MessageInfo getMessage(@RequestParam String messageId) {
-        return null;
+        return messageService.getMessage(messageId);
     }
 
     @GetMapping("/message/all")
     @Override
-    public List<MessageInfo> getAllMessages(@RequestParam String sender,@RequestParam String receiver) {
-        return null;
+    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,@RequestParam("receiver") String receiver) {
+        return messageService.getAllMessages(sender,receiver);
     }
 
     @Override

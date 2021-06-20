@@ -12,6 +12,7 @@ import ru.reboot.error.ErrorCode;
 
 import javax.persistence.NoResultException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -32,9 +33,11 @@ public class MessageRepositoryImpl implements MessageRepository {
     public MessageEntity getMessage(String messageId) {
         MessageEntity entity;
         try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
             Query query = session.createQuery("from MessageEntity m where m.id=:id");
             query.setParameter("id", messageId);
             entity = (MessageEntity) query.getSingleResult();
+            session.getTransaction().commit();
         }
         catch (NoResultException exp){
             entity = null;
@@ -49,10 +52,12 @@ public class MessageRepositoryImpl implements MessageRepository {
     public List<MessageEntity> getAllMessages(String sender, String receiver) {
         List<MessageEntity> list;
         try(Session session = sessionFactory.openSession()){
-            Query query = sessionFactory.getCurrentSession().createQuery("from MessageEntity m where m.sender=:sender and m.recipient=:receiver");
+            session.beginTransaction();
+            Query query = session.createQuery("from MessageEntity m where m.sender=:sender and m.recipient=:receiver");
             query.setParameter("sender", sender);
             query.setParameter("receiver", receiver);
-            list = (List<MessageEntity>) query.getResultList();
+            list = (List<MessageEntity>) query.list();
+            session.getTransaction().commit();
         }
         catch (NoResultException exp) {
             list = null;
@@ -65,16 +70,13 @@ public class MessageRepositoryImpl implements MessageRepository {
     @Override
     public List<MessageEntity> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
         List<MessageEntity> result;
-        String queryString = "SELECT m FROM MessageEntity m WHERE " +
-                "m.sender = :sender" +
-                "m.recipient = :receiver" +
-                "m.message_timestamp >= :sinceTimestamp";
+        String queryString = "SELECT m FROM MessageEntity m WHERE m.sender = :sender and m.recipient = :receiver and m.messageTimestamp >= :sinceTimestamp";
 
         try (Session session = sessionFactory.openSession()) {
             result = session.createQuery(queryString, MessageEntity.class)
-                    .setParameter(":sender", sender)
-                    .setParameter(":receiver", receiver)
-                    .setParameter(":sinceTimestamp", sinceTimestamp)
+                    .setParameter("sender", sender)
+                    .setParameter("receiver", receiver)
+                    .setParameter("sinceTimestamp", sinceTimestamp)
                     .getResultList();
         }
 
@@ -109,11 +111,27 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public Collection<MessageEntity> saveAllMessages(Collection<MessageEntity> messages) {
-        return null;
+        List<MessageEntity> messageEntities = new ArrayList<>();
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            for (MessageEntity message : messages) {
+                messageEntities.add(saveMessage(message));
+                transaction.commit();
+            }
+        } catch (RuntimeException e) {
+            if (transaction != null)
+                transaction.rollback();
+        }
+        return messageEntities;
     }
 
     @Override
     public void deleteMessage(String messageId) {
-
+        try (Session session = sessionFactory.openSession()) {
+            MessageEntity messageEntity = new MessageEntity();
+            messageEntity.setId(messageId);
+            session.delete(messageEntity);
+        }
     }
 }

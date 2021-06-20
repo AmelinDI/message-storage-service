@@ -29,14 +29,20 @@ public class MessageServiceImplTest {
     @Test
     public void positiveSaveAllMessagesTest() {
         MockitoAnnotations.initMocks(this);
+
+        List<MessageEntity> messageEntityList = new ArrayList<>();
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setId("10");
-        when(messageRepository.saveMessage(any(MessageEntity.class))).thenReturn(messageEntity);
-        List<MessageInfo> messageInfos = new ArrayList<>();
+        messageEntityList.add(messageEntity);
+
+        when(messageRepository.saveAllMessages(any())).thenReturn(messageEntityList);
+
+        List<MessageInfo> messageInfoList = new ArrayList<>();
         MessageInfo messageInfo = new MessageInfo();
         messageInfo.setId("10");
-        messageInfos.add(messageInfo);
-        Assert.assertEquals(messageInfos, messageService.saveAllMessages(messageInfos));
+        messageInfoList.add(messageInfo);
+
+        Assert.assertEquals(messageInfoList.get(0).getId(), messageService.saveAllMessages(messageInfoList).get(0).getId());
     }
 
     @Test
@@ -76,7 +82,7 @@ public class MessageServiceImplTest {
             messageService.deleteMessage(null);
             Assert.fail();
         } catch (BusinessLogicException exception) {
-            Assert.assertEquals(ErrorCode.ILLEGAL_ARGUMENT, exception.getMessage());
+            Assert.assertEquals(ErrorCode.ILLEGAL_ARGUMENT, exception.getCode());
         }
     }
 }

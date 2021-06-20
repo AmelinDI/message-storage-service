@@ -143,7 +143,7 @@ public class MessageServiceImpl implements MessageService {
      * @return
      */
     @Override
-    public Collection<MessageInfo> saveAllMessages(Collection<MessageInfo> messages) {
+    public List<MessageInfo> saveAllMessages(Collection<MessageInfo> messages) {
         logger.info("Method .saveAllMessages messages={}.", messages);
         List<MessageInfo> messageInfos;
         if (messages == null || messages.isEmpty()) {
