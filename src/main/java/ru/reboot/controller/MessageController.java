@@ -22,7 +22,7 @@ public interface MessageController {
      * Get all messages between sender and receiver since timestamp
      * @return
      */
-    List<MessageInfo> getAllMessages(String sender,String receiver,String sinceTimestamp);
+    List<MessageInfo> getAllMessages(String sender,String receiver, LocalDateTime sinceTimestamp);
 
     /**
      * Save message

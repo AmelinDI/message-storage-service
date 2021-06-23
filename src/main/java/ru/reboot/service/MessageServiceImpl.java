@@ -11,10 +11,7 @@ import ru.reboot.error.BusinessLogicException;
 import ru.reboot.error.ErrorCode;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -192,15 +189,20 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private MessageEntity convertMessageInfoToMessageEntity(MessageInfo info) {
+
+        String messageId = info.getId();
+        if (Objects.isNull(messageId)) {
+            messageId = UUID.randomUUID().toString();
+        }
         return new MessageEntity.Builder()
-                .setId(info.getId())
+                .setId(messageId)
                 .setSender(info.getSender())
                 .setRecipient(info.getRecipient())
                 .setContent(info.getContent())
                 .setMessageTimestamp(info.getMessageTimestamp())
                 .setLastAccessTime(LocalDateTime.now()) // текущее время!!
                 .setReadTime(info.getReadTime())
-                .setWasRead(info.wasRead())
+                .setWasRead(info.getWasRead())
                 .build();
     }
 }
