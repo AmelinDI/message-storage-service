@@ -8,3 +8,10 @@ jdbc:
 
 liquibase:
     change-log: classpath:liquibase/db.changelog.xml
+
+spring:
+  kafka:
+    bootstrap-servers: http://130.193.55.12:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer

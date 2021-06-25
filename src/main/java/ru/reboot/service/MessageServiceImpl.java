@@ -3,6 +3,7 @@ package ru.reboot.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.reboot.dao.MessageRepository;
 import ru.reboot.dao.entity.MessageEntity;
@@ -17,12 +18,20 @@ import java.util.stream.Collectors;
 @Component
 public class MessageServiceImpl implements MessageService {
 
-    private MessageRepository messageRepository;
     private static final Logger logger = LogManager.getLogger(MessageServiceImpl.class);
+
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    private MessageRepository messageRepository;
 
     @Autowired
     public void setMessageRepository(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
+    }
+
+    @Autowired
+    public void setKafkaTemplate(KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     /**
