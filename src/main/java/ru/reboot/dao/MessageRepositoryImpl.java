@@ -44,6 +44,20 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
+    public List<MessageEntity> getAllMessages(String user) {
+
+        try (Session session = sessionFactory.openSession()) {
+
+            Query<MessageEntity> query = session.createQuery("from MessageEntity m where (m.sender=:user or m.recipient=:user)", MessageEntity.class);
+            query.setParameter("user", user);
+            return query.list();
+        } catch (Exception ex) {
+            String message = String.format("Failed to .getAllMessages user=%s error=%s", user, ex.toString());
+            throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
+        }
+    }
+
+    @Override
     public List<MessageEntity> getAllMessages(String sender, String receiver) {
 
         try (Session session = sessionFactory.openSession()) {

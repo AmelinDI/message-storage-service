@@ -62,6 +62,32 @@ public class MessageServiceImpl implements MessageService {
     }
 
     /**
+     * Receive all messages with user
+     *
+     * @param user - Chat user
+     * @return - Returns Array of MessageInfo
+     */
+    @Override
+    public List<MessageInfo> getAllMessages(String user) {
+        try {
+            logger.info("Method .getAllMessages(String user) user={}", user);
+            if (Objects.isNull(user) || user.length() == 0) {
+                throw new BusinessLogicException("Sender of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
+            }
+            List<MessageEntity> messageEntityList = messageRepository.getAllMessages(user);
+            if (Objects.isNull(messageEntityList)) {
+                throw new BusinessLogicException("No messages found", ErrorCode.MESSAGE_NOT_FOUND);
+            }
+            List<MessageInfo> messageInfosList = messageEntityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
+            logger.info("Method .getAllMessages(String user) completed user={},result={}", user, messageInfosList);
+            return messageInfosList;
+        } catch (Exception e) {
+            logger.error("Error to .getAllMessages(String user) error = {}", e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
      * Receive all messages between sender and receiver
      *
      * @param sender   - Sender of messages

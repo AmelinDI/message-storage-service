@@ -41,6 +41,12 @@ public class MessageControllerImpl implements MessageController {
         return messageService.getMessage(messageId);
     }
 
+    @GetMapping("/message/allByUser")
+    @Override
+    public List<MessageInfo> getAllMessages(@RequestParam("user") String user) {
+        return messageService.getAllMessages(user);
+    }
+
     @GetMapping("/message/all")
     @Override
     public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender, @RequestParam("receiver") String receiver) {
