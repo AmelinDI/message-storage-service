@@ -62,27 +62,27 @@ public class MessageServiceImpl implements MessageService {
     }
 
     /**
-     * Receive all messages with user
+     * Receive all messages with userId
      *
-     * @param user - Chat user
+     * @param userId - Chat userId
      * @return - Returns Array of MessageInfo
      */
     @Override
-    public List<MessageInfo> getAllMessages(String user) {
+    public List<MessageInfo> getAllMessages(String userId) {
         try {
-            logger.info("Method .getAllMessages(String user) user={}", user);
-            if (Objects.isNull(user) || user.length() == 0) {
+            logger.info("Method .getAllMessages(String userId) userId={}", userId);
+            if (Objects.isNull(userId) || userId.length() == 0) {
                 throw new BusinessLogicException("Sender of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
             }
-            List<MessageEntity> messageEntityList = messageRepository.getAllMessages(user);
+            List<MessageEntity> messageEntityList = messageRepository.getAllMessages(userId);
             if (Objects.isNull(messageEntityList)) {
                 throw new BusinessLogicException("No messages found", ErrorCode.MESSAGE_NOT_FOUND);
             }
             List<MessageInfo> messageInfosList = messageEntityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
-            logger.info("Method .getAllMessages(String user) completed user={},result={}", user, messageInfosList);
+            logger.info("Method .getAllMessages(String userId) completed userId={},result={}", userId, messageInfosList);
             return messageInfosList;
         } catch (Exception e) {
-            logger.error("Error to .getAllMessages(String user) error = {}", e.getMessage(), e);
+            logger.error("Error to .getAllMessages(String userId) error = {}", e.getMessage(), e);
             throw e;
         }
     }

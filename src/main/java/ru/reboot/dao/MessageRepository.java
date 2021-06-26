@@ -16,7 +16,7 @@ public interface MessageRepository {
     /**
      * Get all messages with user
      */
-    List<MessageEntity> getAllMessages(String user);
+    List<MessageEntity> getAllMessages(String userId);
 
     /**
      * Get all messages between sender and receiver

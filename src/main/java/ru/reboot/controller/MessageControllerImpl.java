@@ -43,8 +43,8 @@ public class MessageControllerImpl implements MessageController {
 
     @GetMapping("/message/allByUser")
     @Override
-    public List<MessageInfo> getAllMessages(@RequestParam("user") String user) {
-        return messageService.getAllMessages(user);
+    public List<MessageInfo> getAllMessages(@RequestParam("userId") String userId) {
+        return messageService.getAllMessages(userId);
     }
 
     @GetMapping("/message/all")

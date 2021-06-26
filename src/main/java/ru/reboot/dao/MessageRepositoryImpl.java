@@ -44,15 +44,15 @@ public class MessageRepositoryImpl implements MessageRepository {
     }
 
     @Override
-    public List<MessageEntity> getAllMessages(String user) {
+    public List<MessageEntity> getAllMessages(String userId) {
 
         try (Session session = sessionFactory.openSession()) {
 
             Query<MessageEntity> query = session.createQuery("from MessageEntity m where (m.sender=:user or m.recipient=:user)", MessageEntity.class);
-            query.setParameter("user", user);
+            query.setParameter("user", userId);
             return query.list();
         } catch (Exception ex) {
-            String message = String.format("Failed to .getAllMessages user=%s error=%s", user, ex.toString());
+            String message = String.format("Failed to .getAllMessages userId=%s error=%s", userId, ex.toString());
             throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
         }
     }
