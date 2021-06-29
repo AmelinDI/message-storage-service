@@ -3,6 +3,7 @@ package ru.reboot.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import ru.reboot.dao.MessageRepository;
 import ru.reboot.dao.entity.MessageEntity;
@@ -26,6 +27,13 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     public void setMessageRepository(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
+    }
+
+    @KafkaListener(topics = CommitMessageEvent.TOPIC, groupId = "message-storage-service", autoStartup = "${kafka.autoStartup}")
+    public void onCommitMessageEvent(String raw) {
+
+//        CommitMessageEvent event = mapper.readValue(raw, CommitMessageEvent.class);
+        logger.info("<< Received: {}", raw);
     }
 
     /**
