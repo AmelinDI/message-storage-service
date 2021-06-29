@@ -28,6 +28,46 @@ public class AmMessageServiceImplTest {
     @Mock
     MessageRepositoryImpl messageRepository;
 
+
+    @Test
+    public void getAllUserMessages() {
+        LocalDateTime testDateTime = LocalDateTime.of(2001, 3, 3,1, 1);
+        List<MessageEntity> messageEntityList = new ArrayList<>();
+        MessageEntity messageEntity01 = new MessageEntity.Builder()
+                .setId("1001")
+                .setContent("Content01")
+                .setSender("SenderNew")
+                .setRecipient("ReceiverNew")
+                .setMessageTimestamp(testDateTime)
+                .build();
+        messageEntityList.add(messageEntity01);
+
+        List<MessageInfo> messageInfoList = new ArrayList<>();
+        MessageInfo messageInfo01 = new MessageInfo.Builder()
+                .setId("1001")
+                .setContent("Content01")
+                .setSender("SenderNew")
+                .setRecipient("ReceiverNew")
+                .setMessageTimestamp(testDateTime)
+                .build();
+        messageInfoList.add(messageInfo01);
+        Mockito.when(messageRepository.getAllMessages("SenderNew")).thenReturn(messageEntityList);
+
+        // 1. verify positive version
+        Assert.assertEquals(messageInfoList.toString(), messageService.getAllMessages("SenderNew").toString());
+
+
+        // 2. Try empty "sender" parameter
+        try {
+            messageService.getAllMessages("");
+            fail();
+        } catch (BusinessLogicException ble) {
+            assertEquals(ErrorCode.ILLEGAL_ARGUMENT, ble.getCode());
+        }
+
+    }
+
+
     @Test
     public void getAllMessages() {
         LocalDateTime testDateTime = LocalDateTime.of(2001, 3, 3,1, 1);

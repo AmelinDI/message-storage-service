@@ -10,11 +10,11 @@ import ru.reboot.dao.entity.MessageEntity;
 import ru.reboot.error.BusinessLogicException;
 import ru.reboot.error.ErrorCode;
 
-import javax.persistence.NoResultException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Message repository.
@@ -31,107 +31,130 @@ public class MessageRepositoryImpl implements MessageRepository {
 
     @Override
     public MessageEntity getMessage(String messageId) {
-        MessageEntity entity;
         try (Session session = sessionFactory.openSession()) {
-            session.beginTransaction();
-            Query query = session.createQuery("from MessageEntity m where m.id=:id");
+
+            Query<MessageEntity> query = session.createQuery("from MessageEntity m where m.id=:id", MessageEntity.class);
             query.setParameter("id", messageId);
-            entity = (MessageEntity) query.getSingleResult();
-            session.getTransaction().commit();
-        }
-        catch (NoResultException exp){
-            entity = null;
-        }
-        catch (RuntimeException exp) {
+
+            List<MessageEntity> entities = query.list();
+            return !entities.isEmpty() ? entities.get(0) : null;
+        } catch (Exception exp) {
             throw new BusinessLogicException("Exception in DB: " + exp.getMessage(), ErrorCode.DATABASE_ERROR);
         }
-        return entity;
+    }
+
+    @Override
+    public List<MessageEntity> getAllMessages(String userId) {
+
+        try (Session session = sessionFactory.openSession()) {
+
+            Query<MessageEntity> query = session.createQuery("from MessageEntity m where (m.sender=:user or m.recipient=:user)", MessageEntity.class);
+            query.setParameter("user", userId);
+            return query.list();
+        } catch (Exception ex) {
+            String message = String.format("Failed to .getAllMessages userId=%s error=%s", userId, ex.toString());
+            throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
+        }
     }
 
     @Override
     public List<MessageEntity> getAllMessages(String sender, String receiver) {
-        List<MessageEntity> list;
-        try(Session session = sessionFactory.openSession()){
-            session.beginTransaction();
-            Query query = session.createQuery("from MessageEntity m where m.sender=:sender and m.recipient=:receiver");
+
+        try (Session session = sessionFactory.openSession()) {
+
+            Query<MessageEntity> query = session.createQuery("from MessageEntity m where (m.sender=:sender and m.recipient=:receiver) or (m.sender=:receiver and m.recipient=:sender)", MessageEntity.class);
             query.setParameter("sender", sender);
             query.setParameter("receiver", receiver);
-            list = (List<MessageEntity>) query.list();
-            session.getTransaction().commit();
+            return query.list();
+        } catch (Exception ex) {
+            String message = String.format("Failed to .getAllMessages sender=%s receiver=%s error=%s", sender, receiver, ex.toString());
+            throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
         }
-        catch (NoResultException exp) {
-            list = null;
-        } catch (RuntimeException exp) {
-            throw new BusinessLogicException("Exception in DB: " + exp.getMessage(), ErrorCode.DATABASE_ERROR);
-        }
-        return list;
     }
 
     @Override
     public List<MessageEntity> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
-        List<MessageEntity> result;
-        String queryString = "SELECT m FROM MessageEntity m WHERE m.sender = :sender and m.recipient = :receiver and m.messageTimestamp >= :sinceTimestamp";
 
         try (Session session = sessionFactory.openSession()) {
-            result = session.createQuery(queryString, MessageEntity.class)
-                    .setParameter("sender", sender)
-                    .setParameter("receiver", receiver)
-                    .setParameter("sinceTimestamp", sinceTimestamp)
-                    .getResultList();
-        }
 
-        if (result == null) {
-            throw new BusinessLogicException("Messages with" +
-                    " sender = " + sender +
-                    " receiver = " + receiver +
-                    " sinceTimestamp = " + sinceTimestamp +
-                    "was not found", ErrorCode.MESSAGE_NOT_FOUND);
-        }
+            Query<MessageEntity> query = session.createQuery("from MessageEntity m where " +
+                    "((m.sender=:sender and m.recipient=:receiver) or (m.sender=:receiver and m.recipient=:sender)) and " +
+                    "m.messageTimestamp >= :sinceTimestamp", MessageEntity.class);
+            query.setParameter("sender", sender);
+            query.setParameter("receiver", receiver);
+            query.setParameter("sinceTimestamp", sinceTimestamp);
 
-        return result;
+            return query.list();
+        } catch (Exception ex) {
+            String message = String.format("Failed to .getAllMessages sender=%s receiver=%s sinceTimestamp=%s error=%s", sender, receiver, sinceTimestamp, ex.toString());
+            throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
+        }
     }
 
     @Override
     public MessageEntity saveMessage(MessageEntity message) {
-        MessageEntity result;
+
+        Transaction transaction = null;
 
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-                session.save(message);
+            transaction = session.beginTransaction();
+            session.saveOrUpdate(message);
             transaction.commit();
-        }
 
-        result = getMessage(message.getId());
-        if (result == null) {
-            throw new BusinessLogicException("Error saving " + message, ErrorCode.DATABASE_ERROR);
+            MessageEntity result = getMessage(message.getId());
+            if (result == null) {
+                throw new BusinessLogicException("Failed to get message message=" + message, ErrorCode.DATABASE_ERROR);
+            }
+            return result;
+        } catch (Exception ex) {
+            if (Objects.nonNull(transaction)) {
+                transaction.rollback();
+            }
+            throw new BusinessLogicException("Failed to .saveMessage message=" + message + " error=" + ex.toString(), ErrorCode.DATABASE_ERROR);
         }
-
-        return result;
     }
 
     @Override
     public Collection<MessageEntity> saveAllMessages(Collection<MessageEntity> messages) {
-        List<MessageEntity> messageEntities = new ArrayList<>();
+
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             for (MessageEntity message : messages) {
-                messageEntities.add(saveMessage(message));
-                transaction.commit();
+                session.saveOrUpdate(message);
             }
-        } catch (RuntimeException e) {
-            if (transaction != null)
+            transaction.commit();
+
+            return messages.stream()
+                    .map(entity -> getMessage(entity.getId()))
+                    .collect(Collectors.toList());
+        } catch (Exception ex) {
+            if (transaction != null) {
                 transaction.rollback();
+            }
+            throw new BusinessLogicException("Failed to .saveAllMessages messages=" + messages + " error=" + ex.toString(), ErrorCode.DATABASE_ERROR);
         }
-        return messageEntities;
     }
 
     @Override
     public void deleteMessage(String messageId) {
+
+        Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
+
+            transaction = session.beginTransaction();
+
             MessageEntity messageEntity = new MessageEntity();
             messageEntity.setId(messageId);
             session.delete(messageEntity);
+
+            transaction.commit();
+        } catch (Exception ex) {
+
+            if (Objects.nonNull(transaction)) {
+                transaction.rollback();
+            }
+            throw new BusinessLogicException("Failed to .deleteMessage error=" + ex.toString(), ErrorCode.DATABASE_ERROR);
         }
     }
 }

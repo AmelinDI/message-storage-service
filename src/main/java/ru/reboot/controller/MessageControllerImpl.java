@@ -3,8 +3,8 @@ package ru.reboot.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.reboot.dao.MessageRepositoryImpl;
 import ru.reboot.dto.MessageInfo;
 import ru.reboot.service.MessageService;
 
@@ -37,20 +37,28 @@ public class MessageControllerImpl implements MessageController {
 
     @GetMapping("/message")
     @Override
-    public MessageInfo getMessage(@RequestParam String messageId) {
+    public MessageInfo getMessage(@RequestParam("messageId") String messageId) {
         return messageService.getMessage(messageId);
+    }
+
+    @GetMapping("/message/allByUser")
+    @Override
+    public List<MessageInfo> getAllMessages(@RequestParam("userId") String userId) {
+        return messageService.getAllMessages(userId);
     }
 
     @GetMapping("/message/all")
     @Override
-    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,@RequestParam("receiver") String receiver) {
-        return messageService.getAllMessages(sender,receiver);
+    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender, @RequestParam("receiver") String receiver) {
+        return messageService.getAllMessages(sender, receiver);
     }
 
     @Override
-    @GetMapping("message/allSinceTime")
-    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,@RequestParam("receiver") String receiver,@RequestParam("timestamp") LocalDateTime sinceTimestamp) {
-        return messageService.getAllMessages(sender, receiver, sinceTimestamp);
+    @GetMapping("/message/allSinceTime")
+    public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,
+                                            @RequestParam("receiver") String receiver,
+                                            @RequestParam("timestamp") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime stringTimestamp) {
+        return messageService.getAllMessages(sender, receiver, stringTimestamp);
     }
 
     @Override
@@ -61,13 +69,13 @@ public class MessageControllerImpl implements MessageController {
 
     @Override
     @PutMapping("/message/all")
-    public Collection<MessageInfo> saveAllMessages(Collection<MessageInfo> messages) {
+    public Collection<MessageInfo> saveAllMessages(@RequestBody Collection<MessageInfo> messages) {
         return messageService.saveAllMessages(messages);
     }
 
     @Override
-    @DeleteMapping("/message/{messageId}")
-    public void deleteMessage(@PathVariable String messageId) {
+    @DeleteMapping("/message")
+    public void deleteMessage(@RequestParam("messageId") String messageId) {
         messageService.deleteMessage(messageId);
     }
 }

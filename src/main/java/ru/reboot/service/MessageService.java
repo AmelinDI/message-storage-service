@@ -17,6 +17,13 @@ public interface MessageService {
     MessageInfo getMessage(String messageId);
 
     /**
+     * Get all messages with user
+     *
+     * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if user is null or empty
+     */
+    List<MessageInfo> getAllMessages(String user);
+
+    /**
      * Get all messages between sender and receiver
      *
      * @throws ru.reboot.error.BusinessLogicException with code ILLEGAL_ARGUMENT if sender, receiver is null or empty

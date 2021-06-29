@@ -14,14 +14,20 @@ public interface MessageController {
     MessageInfo getMessage(String messageId);
 
     /**
+     * Get all messages with user
+     */
+    List<MessageInfo> getAllMessages(String user);
+
+    /**
      * Get all messages between sender and receiver
      */
     List<MessageInfo> getAllMessages(String sender, String receiver);
 
     /**
      * Get all messages between sender and receiver since timestamp
+     * @return
      */
-    List<MessageInfo> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp);
+    List<MessageInfo> getAllMessages(String sender,String receiver, LocalDateTime sinceTimestamp);
 
     /**
      * Save message
