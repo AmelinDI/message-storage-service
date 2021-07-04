@@ -237,7 +237,7 @@ public class MessageServiceImpl implements MessageService {
                 .setMessageTimestamp(info.getMessageTimestamp())
                 .setLastAccessTime(LocalDateTime.now()) // текущее время!!
                 .setReadTime(info.getReadTime())
-                .setWasRead(info.getWasRead())
+                .setWasRead(info.wasRead())
                 .build();
     }
 }
