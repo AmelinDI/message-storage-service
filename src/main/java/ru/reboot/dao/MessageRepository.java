@@ -42,4 +42,6 @@ public interface MessageRepository {
      * Delete message by id
      */
     void deleteMessage(String messageId);
+
+    int updateWasReadByIds(Collection<String> messageIds);
 }

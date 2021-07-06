@@ -11,6 +11,7 @@ import ru.reboot.error.BusinessLogicException;
 import ru.reboot.error.ErrorCode;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -155,6 +156,25 @@ public class MessageRepositoryImpl implements MessageRepository {
                 transaction.rollback();
             }
             throw new BusinessLogicException("Failed to .deleteMessage error=" + ex.toString(), ErrorCode.DATABASE_ERROR);
+        }
+    }
+
+    @Override
+    public int updateWasReadByIds(Collection<String> messageIds) {
+        Transaction transaction = null;
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
+            Query<MessageEntity> query = session.createQuery("UPDATE MessageEntity  SET wasRead =TRUE ,readTime=current_timestamp() where  id IN (:messageIds)");
+            query.setParameterList("messageIds",messageIds);
+            int rowsUpdated = query.executeUpdate();
+            transaction.commit();
+            return rowsUpdated;
+        } catch (Exception ex) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            String message = String.format("Failed to .updateWasReadByIds messageIds=%s error=%s", messageIds ,ex.toString());
+            throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
         }
     }
 }

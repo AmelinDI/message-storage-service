@@ -14,4 +14,4 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
 kafka:
-  autoStartup: false
+  autoStartup: true
