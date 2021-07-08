@@ -28,23 +28,24 @@ public class MessageServiceImpl implements MessageService {
     public void setMessageRepository(MessageRepository messageRepository) {
         this.messageRepository = messageRepository;
     }
+
     /**
      * Reading Set of messages read from Kafka
+     *
      * @param raw - serialized CommitMessageEvent instance with Collection of MessageIds
      */
     @KafkaListener(topics = CommitMessageEvent.TOPIC, groupId = "message-storage-service", autoStartup = "${kafka.autoStartup}")
-    public void onCommitMessageEvent(String raw) throws JsonProcessingException{
+    public void onCommitMessageEvent(String raw) throws JsonProcessingException {
         logger.info(" << Method.onCommitMessageEvent topic={}  content={}", CommitMessageEvent.TOPIC, raw);
-        try{
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             CommitMessageEvent event = objectMapper.readValue(raw, CommitMessageEvent.class);
-            if(event.getMessageIds().isEmpty()){
-                throw new BusinessLogicException("No messagesId",ErrorCode.ILLEGAL_ARGUMENT);
+            if (event.getMessageIds().isEmpty()) {
+                throw new BusinessLogicException("No messagesId", ErrorCode.ILLEGAL_ARGUMENT);
             }
             messageRepository.updateWasReadByIds(event.getMessageIds());
             logger.info(" Method .onCommitMessageEvent complete result object: {}", event);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             logger.error("Method .onCommitMessageEvent error={}", e.getMessage(), e);
             throw e;
         }
@@ -181,13 +182,14 @@ public class MessageServiceImpl implements MessageService {
             logger.info("Method .saveMessage completed message={}", message);
             return result;
         } catch (Exception e) {
-            logger.error("Ettor to .saveMessage error={}", e.getMessage(), e);
+            logger.error("Error to .saveMessage error={}", e.getMessage(), e);
             throw e;
         }
     }
 
     /**
      * Saving messages in DB
+     *
      * @param messages - Collection of messages to save in DB
      * @return - List on MessageInfos instances saved in DB
      */
@@ -212,6 +214,7 @@ public class MessageServiceImpl implements MessageService {
 
     /**
      * Delete message from DB by messageId
+     *
      * @param messageId - messageId to delete
      */
     @Override
@@ -238,7 +241,7 @@ public class MessageServiceImpl implements MessageService {
                 .setMessageTimestamp(entity.getMessageTimestamp())
                 .setLastAccessTime(entity.getLastAccessTime())
                 .setReadTime(entity.getReadTime())
-                .setWasRead(entity.wasRead())
+                .setWasRead(entity.getWasRead())
                 .build();
     }
 
@@ -256,7 +259,7 @@ public class MessageServiceImpl implements MessageService {
                 .setMessageTimestamp(info.getMessageTimestamp())
                 .setLastAccessTime(LocalDateTime.now()) // текущее время!!
                 .setReadTime(info.getReadTime())
-                .setWasRead(info.wasRead())
+                .setWasRead(info.getWasRead())
                 .build();
     }
 }
