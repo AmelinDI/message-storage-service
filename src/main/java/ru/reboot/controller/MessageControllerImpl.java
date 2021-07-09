@@ -35,26 +35,26 @@ public class MessageControllerImpl implements MessageController {
         return "MessageController " + new Date();
     }
 
-    @GetMapping("/message")
+    @GetMapping("message")
     @Override
     public MessageInfo getMessage(@RequestParam("messageId") String messageId) {
         return messageService.getMessage(messageId);
     }
 
-    @GetMapping("/message/allByUser")
+    @GetMapping("message/allByUser")
     @Override
     public List<MessageInfo> getAllMessages(@RequestParam("userId") String userId) {
         return messageService.getAllMessages(userId);
     }
 
-    @GetMapping("/message/all")
+    @GetMapping("message/all")
     @Override
     public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender, @RequestParam("receiver") String receiver) {
         return messageService.getAllMessages(sender, receiver);
     }
 
     @Override
-    @GetMapping("/message/allSinceTime")
+    @GetMapping("message/allSinceTime")
     public List<MessageInfo> getAllMessages(@RequestParam("sender") String sender,
                                             @RequestParam("receiver") String receiver,
                                             @RequestParam("timestamp") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime stringTimestamp) {
@@ -62,19 +62,19 @@ public class MessageControllerImpl implements MessageController {
     }
 
     @Override
-    @PutMapping("/message")
+    @PutMapping("message")
     public MessageInfo saveMessage(@RequestBody MessageInfo message) {
         return messageService.saveMessage(message);
     }
 
     @Override
-    @PutMapping("/message/all")
+    @PutMapping("message/all")
     public Collection<MessageInfo> saveAllMessages(@RequestBody Collection<MessageInfo> messages) {
         return messageService.saveAllMessages(messages);
     }
 
     @Override
-    @DeleteMapping("/message")
+    @DeleteMapping("message")
     public void deleteMessage(@RequestParam("messageId") String messageId) {
         messageService.deleteMessage(messageId);
     }

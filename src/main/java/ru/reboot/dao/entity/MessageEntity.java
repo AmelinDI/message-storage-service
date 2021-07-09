@@ -83,7 +83,7 @@ public class MessageEntity {
         this.lastAccessTime = lastAccessTime;
     }
 
-    public boolean wasRead() {
+    public boolean getWasRead() {
         return wasRead;
     }
 
@@ -113,7 +113,7 @@ public class MessageEntity {
                 '}';
     }
 
-    public static class  Builder {
+    public static class Builder {
         private MessageEntity obj;
 
         public Builder() {
