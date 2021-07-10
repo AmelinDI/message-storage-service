@@ -1,6 +1,5 @@
 package ru.reboot.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,8 +34,8 @@ public class MessageServiceImpl implements MessageService {
      * @param raw - serialized CommitMessageEvent instance with Collection of MessageIds
      */
     @KafkaListener(topics = CommitMessageEvent.TOPIC, groupId = "message-storage-service", autoStartup = "${kafka.autoStartup}")
-    public void onCommitMessageEvent(String raw) throws JsonProcessingException {
-        logger.info(" << Method.onCommitMessageEvent topic={}  content={}", CommitMessageEvent.TOPIC, raw);
+    public void onCommitMessageEvent(String raw) {
+        logger.info("Method .onCommitMessageEvent topic={} content={}", CommitMessageEvent.TOPIC, raw);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             CommitMessageEvent event = objectMapper.readValue(raw, CommitMessageEvent.class);
@@ -44,10 +43,10 @@ public class MessageServiceImpl implements MessageService {
                 throw new BusinessLogicException("No messagesId", ErrorCode.ILLEGAL_ARGUMENT);
             }
             messageRepository.updateWasReadByIds(event.getMessageIds());
-            logger.info(" Method .onCommitMessageEvent complete result object: {}", event);
+            logger.info("<< Received: {}", raw);
         } catch (Exception e) {
-            logger.error("Method .onCommitMessageEvent error={}", e.getMessage(), e);
-            throw e;
+            logger.error("Failed to .onCommitMessageEvent topic={} content={} error={}", CommitMessageEvent.TOPIC, raw, e.toString(), e);
+            throw new BusinessLogicException(e.getMessage(), ErrorCode.ILLEGAL_ARGUMENT);
         }
     }
 
@@ -59,8 +58,8 @@ public class MessageServiceImpl implements MessageService {
      */
     @Override
     public MessageInfo getMessage(String messageId) {
+        logger.info("Method .getMessage messageId={}", messageId);
         try {
-            logger.info("Method .getMessage messageId={}.", messageId);
             if (Objects.isNull(messageId) || messageId.length() == 0) {
                 throw new BusinessLogicException("MessageId of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
             }
@@ -70,10 +69,10 @@ public class MessageServiceImpl implements MessageService {
             }
 
             MessageInfo messageInfo = convertMessageEntityToMessageInfo(entity);
-            logger.info("Method .getMessage completed  messageId={},result={}", messageId, messageInfo);
+            logger.info("Method .getMessage completed messageId={} return={}", messageId, messageInfo);
             return messageInfo;
         } catch (Exception e) {
-            logger.error("Error to .getMessage error = {}", e.getMessage(), e);
+            logger.error("Failed to .getMessage messageId={} error={}", messageId, e.toString(), e);
             throw e;
         }
     }
@@ -87,7 +86,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<MessageInfo> getAllMessages(String userId) {
         try {
-            logger.info("Method .getAllMessages(String userId) userId={}", userId);
+            logger.info("Method .getAllMessages userId={}", userId);
             if (Objects.isNull(userId) || userId.length() == 0) {
                 throw new BusinessLogicException("Sender of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
             }
@@ -96,10 +95,10 @@ public class MessageServiceImpl implements MessageService {
                 throw new BusinessLogicException("No messages found", ErrorCode.MESSAGE_NOT_FOUND);
             }
             List<MessageInfo> messageInfosList = messageEntityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
-            logger.info("Method .getAllMessages(String userId) completed userId={},result={}", userId, messageInfosList);
+            logger.info("Method .getAllMessages completed userId={} return={}", userId, messageInfosList);
             return messageInfosList;
         } catch (Exception e) {
-            logger.error("Error to .getAllMessages(String userId) error = {}", e.getMessage(), e);
+            logger.error("Failed to .getAllMessages userId={} error={}", userId, e.toString(), e);
             throw e;
         }
     }
@@ -113,8 +112,8 @@ public class MessageServiceImpl implements MessageService {
      */
     @Override
     public List<MessageInfo> getAllMessages(String sender, String receiver) {
+        logger.info("Method .getAllMessages sender={} receiver={}", sender, receiver);
         try {
-            logger.info("Method .getAllMessages(String sender, String receiver) sender={},receiver={}", sender, receiver);
             if (Objects.isNull(sender) || Objects.isNull(receiver) || sender.length() == 0 || receiver.length() == 0) {
                 throw new BusinessLogicException("Sender of receiver is not consistent", ErrorCode.ILLEGAL_ARGUMENT);
             }
@@ -123,10 +122,10 @@ public class MessageServiceImpl implements MessageService {
                 throw new BusinessLogicException("No messages found", ErrorCode.MESSAGE_NOT_FOUND);
             }
             List<MessageInfo> messageInfosList = messageEntityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
-            logger.info("Method .getAllMessages(String sender, String receiver) completed sender={},receiver={},result={}", sender, receiver, messageInfosList);
+            logger.info("Method .getAllMessages completed sender={} receiver={} return={}", sender, receiver, messageInfosList);
             return messageInfosList;
         } catch (Exception e) {
-            logger.error("Error to .getAllMessages(String sender, String receiver) error = {}", e.getMessage(), e);
+            logger.error("Failed to .getAllMessages sender={} receiver={} error = {}", sender, receiver, e.toString(), e);
             throw e;
         }
     }
@@ -141,21 +140,19 @@ public class MessageServiceImpl implements MessageService {
      */
     @Override
     public List<MessageInfo> getAllMessages(String sender, String receiver, LocalDateTime sinceTimestamp) {
-        List<MessageInfo> result;
         logger.info("Method .getAllMessages sender={} receiver={} sinceTimestamp={}", sender, receiver, sinceTimestamp);
-
         try {
             if (sender == null || receiver == null || sinceTimestamp == null
                     || sender.equals("") || receiver.equals("")) {
                 throw new BusinessLogicException("Parameters are null or empty", ErrorCode.ILLEGAL_ARGUMENT);
             }
             List<MessageEntity> entityList = messageRepository.getAllMessages(sender, receiver, sinceTimestamp);
-            result = entityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
+            List<MessageInfo> result = entityList.stream().map(this::convertMessageEntityToMessageInfo).collect(Collectors.toList());
 
-            logger.info("Method .getAllMessages completed sender={} receiver={} sinceTimestamp={} result={}", sender, receiver, sinceTimestamp, result);
+            logger.info("Method .getAllMessages completed sender={} receiver={} sinceTimestamp={} return={}", sender, receiver, sinceTimestamp, result);
             return result;
         } catch (Exception e) {
-            logger.error("Error to .getAllMessages error = {}", e.getMessage(), e);
+            logger.error("Failed to .getAllMessages sender={} receiver={} sinceTimestamp={} error={}", sender, receiver, sinceTimestamp, e.toString(), e);
             throw e;
         }
     }
@@ -169,20 +166,18 @@ public class MessageServiceImpl implements MessageService {
      */
     @Override
     public MessageInfo saveMessage(MessageInfo message) {
-        MessageInfo result;
         logger.info("Method .saveMessage message={} ", message);
-
         try {
             if (message == null || message.getContent().equals("")) {
                 throw new BusinessLogicException("Message is null or empty", ErrorCode.ILLEGAL_ARGUMENT);
             }
             MessageEntity messageEntity = convertMessageInfoToMessageEntity(message);
-            result = convertMessageEntityToMessageInfo(messageRepository.saveMessage(messageEntity));
+            MessageInfo result = convertMessageEntityToMessageInfo(messageRepository.saveMessage(messageEntity));
 
-            logger.info("Method .saveMessage completed message={}", message);
+            logger.info("Method .saveMessage completed message={} return={}", message, result);
             return result;
         } catch (Exception e) {
-            logger.error("Error to .saveMessage error={}", e.getMessage(), e);
+            logger.error("Failed to .saveMessage message={} error={}", message, e.toString(), e);
             throw e;
         }
     }
@@ -196,19 +191,22 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<MessageInfo> saveAllMessages(Collection<MessageInfo> messages) {
         logger.info("Method .saveAllMessages messages={}.", messages);
-        List<MessageInfo> messageInfos;
-        if (messages == null || messages.isEmpty()) {
-            throw new BusinessLogicException("Input collection of messages does empty or null", ErrorCode.ILLEGAL_ARGUMENT);
-        } else {
-            messageInfos = messageRepository.saveAllMessages(messages
+        try{
+            if (messages == null || messages.isEmpty()) {
+                throw new BusinessLogicException("Input collection of messages does empty or null", ErrorCode.ILLEGAL_ARGUMENT);
+            }
+            List<MessageInfo> messageInfos = messageRepository.saveAllMessages(messages
                     .stream()
                     .map(this::convertMessageInfoToMessageEntity)
                     .collect(Collectors.toList()))
                     .stream()
                     .map(this::convertMessageEntityToMessageInfo)
                     .collect(Collectors.toList());
-            logger.info("Method .saveAllMessages completed messages={} result={}", messages, messages);
+            logger.info("Method .saveAllMessages completed messages={} return={}", messages, messages);
             return messageInfos;
+        } catch (Exception e) {
+            logger.error("Failed to .saveAllMessages messages={} error={}", messages, e.toString(), e);
+            throw e;
         }
     }
 
@@ -220,15 +218,21 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void deleteMessage(String messageId) {
         logger.info("Method .deleteMessage messageId={}.", messageId);
-        if (messageId == null || messageId.isEmpty()) {
-            throw new BusinessLogicException("messageId is empty or null", ErrorCode.ILLEGAL_ARGUMENT);
-        } else {
+        try {
+            if (messageId == null || messageId.isEmpty()) {
+                throw new BusinessLogicException("messageId is empty or null", ErrorCode.ILLEGAL_ARGUMENT);
+            }
             Optional
                     .of(convertMessageInfoToMessageEntity(getMessage(messageId)))
                     .orElseThrow(() -> new BusinessLogicException("Message doesn't exist", ErrorCode.MESSAGE_NOT_FOUND));
             messageRepository.deleteMessage(messageId);
-            logger.info("Method .deleteMessage completed");
+
+            logger.info("Method .deleteMessage completed messageId={}", messageId);
+        } catch (Exception e) {
+            logger.error("Failed to .deleteMessage messageId={} error={}", messageId, e.toString(), e);
+            throw e;
         }
+
     }
 
 
