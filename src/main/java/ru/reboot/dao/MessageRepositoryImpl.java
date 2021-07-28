@@ -11,7 +11,6 @@ import ru.reboot.error.BusinessLogicException;
 import ru.reboot.error.ErrorCode;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -53,7 +52,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             query.setParameter("user", userId);
             return query.list();
         } catch (Exception ex) {
-            String message = String.format("Failed to .getAllMessages userId=%s error=%s", userId, ex.toString());
+            String message = String.format("Failed to .getAllMessages userId=%s error=%s", userId, ex);
             throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
         }
     }
@@ -68,7 +67,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             query.setParameter("receiver", receiver);
             return query.list();
         } catch (Exception ex) {
-            String message = String.format("Failed to .getAllMessages sender=%s receiver=%s error=%s", sender, receiver, ex.toString());
+            String message = String.format("Failed to .getAllMessages sender=%s receiver=%s error=%s", sender, receiver, ex);
             throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
         }
     }
@@ -87,7 +86,7 @@ public class MessageRepositoryImpl implements MessageRepository {
 
             return query.list();
         } catch (Exception ex) {
-            String message = String.format("Failed to .getAllMessages sender=%s receiver=%s sinceTimestamp=%s error=%s", sender, receiver, sinceTimestamp, ex.toString());
+            String message = String.format("Failed to .getAllMessages sender=%s receiver=%s sinceTimestamp=%s error=%s", sender, receiver, sinceTimestamp, ex);
             throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
         }
     }
@@ -111,7 +110,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             if (Objects.nonNull(transaction)) {
                 transaction.rollback();
             }
-            throw new BusinessLogicException("Failed to .saveMessage message=" + message + " error=" + ex.toString(), ErrorCode.DATABASE_ERROR);
+            throw new BusinessLogicException("Failed to .saveMessage message=" + message + " error=" + ex, ErrorCode.DATABASE_ERROR);
         }
     }
 
@@ -133,7 +132,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new BusinessLogicException("Failed to .saveAllMessages messages=" + messages + " error=" + ex.toString(), ErrorCode.DATABASE_ERROR);
+            throw new BusinessLogicException("Failed to .saveAllMessages messages=" + messages + " error=" + ex, ErrorCode.DATABASE_ERROR);
         }
     }
 
@@ -155,7 +154,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             if (Objects.nonNull(transaction)) {
                 transaction.rollback();
             }
-            throw new BusinessLogicException("Failed to .deleteMessage error=" + ex.toString(), ErrorCode.DATABASE_ERROR);
+            throw new BusinessLogicException("Failed to .deleteMessage error=" + ex, ErrorCode.DATABASE_ERROR);
         }
     }
 
@@ -165,7 +164,7 @@ public class MessageRepositoryImpl implements MessageRepository {
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
             Query<MessageEntity> query = session.createQuery("UPDATE MessageEntity  SET wasRead =TRUE ,readTime=current_timestamp() where  id IN (:messageIds)");
-            query.setParameterList("messageIds",messageIds);
+            query.setParameterList("messageIds", messageIds);
             int rowsUpdated = query.executeUpdate();
             transaction.commit();
             return rowsUpdated;
@@ -173,7 +172,7 @@ public class MessageRepositoryImpl implements MessageRepository {
             if (transaction != null) {
                 transaction.rollback();
             }
-            String message = String.format("Failed to .updateWasReadByIds messageIds=%s error=%s", messageIds ,ex.toString());
+            String message = String.format("Failed to .updateWasReadByIds messageIds=%s error=%s", messageIds, ex);
             throw new BusinessLogicException(message, ErrorCode.DATABASE_ERROR);
         }
     }
